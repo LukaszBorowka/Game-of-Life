@@ -8,7 +8,7 @@
 
 #include "Game.h"
 
-int main() {
+int main(int argc, char* args[]) {
 	{
 		Game game(100, 100, 5, 5, 60);
 	}
