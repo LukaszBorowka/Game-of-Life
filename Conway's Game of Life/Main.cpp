@@ -10,7 +10,7 @@
 
 int main(int argc, char* args[]) {
 	{
-		Game game(100, 100, 5, 5, 60);
+		Game game(50, 30, 15, 5, 60);
 	}
 
 	return EXIT_SUCCESS;

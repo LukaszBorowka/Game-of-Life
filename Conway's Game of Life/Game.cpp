@@ -4,7 +4,19 @@ void Game::renderGrid() {
 	SDL_SetRenderDrawColor(this->renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(this->renderer);
 
-
+	SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	// vertical lines
+	for (int i = 1; i < this->gridSize.x; i++)
+		SDL_RenderDrawLine(
+			this->renderer,
+			i * (this->cellSize + 1) - 1, 0,
+			i * (this->cellSize + 1) - 1, this->windowSize.y - 1);
+	// horizontal lines
+	for (int i = 1; i < this->gridSize.y; i++)
+		SDL_RenderDrawLine(
+			this->renderer,
+			0, i * (this->cellSize + 1) - 1,
+			this->windowSize.x - 1, i * (this->cellSize + 1) - 1);
 }
 
 void Game::handleEvents() {
@@ -23,6 +35,8 @@ void Game::handleEvents() {
 void Game::loop() {
 	while (this->running) {
 		this->handleEvents();
+		this->renderGrid();
+		SDL_RenderPresent(this->renderer);
 	}
 }
 
