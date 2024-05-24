@@ -21,12 +21,17 @@ private:
 	bool running;	// 
 	bool paused;	// when true, the player can make changes but the game is not running
 
+	bool clicking = false;
+
+	int prevClickedX = -1, prevClickedY = -1;
+
 	SDL_Window* window = NULL;
 	SDL_Renderer* renderer = NULL;
 
 	SDL_Point mousePoint;
 	SDL_Event event;
 
+	void renderCells();
 	void renderGrid();
 	void handleEvents();
 	void loop();

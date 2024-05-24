@@ -1,10 +1,27 @@
 #include "Game.h"
 
+void Game::renderCells() {
+	SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	for (int i = 0; i < this->gridSize.x; i++) {
+		for (int j = 0; j < this->gridSize.y; j++) {
+			if (this->cGrid[i][j]) {
+				SDL_Rect rect = {
+					i * (this->cellSize + 1),
+					j * (this->cellSize + 1),
+					this->cellSize,
+					this->cellSize
+				};
+				SDL_RenderFillRect(this->renderer, &rect);
+			}
+		}
+	}
+}
+
 void Game::renderGrid() {
 	SDL_SetRenderDrawColor(this->renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(this->renderer);
 
-	SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(this->renderer, 0x33, 0x33, 0x33, 0xFF);
 	// vertical lines
 	for (int i = 1; i < this->gridSize.x; i++)
 		SDL_RenderDrawLine(
@@ -26,8 +43,39 @@ void Game::handleEvents() {
 			this->running = false;
 			break;
 
+		case SDL_MOUSEBUTTONDOWN:
+			if (this->event.button.button == SDL_BUTTON_LEFT) this->clicking = true;
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			if (this->event.button.button == SDL_BUTTON_LEFT) {
+				this->clicking = false;
+				this->prevClickedX = -1;
+				this->prevClickedY = -1;
+			}
+			break;
+
 		default:
 			break;
+		}
+	}
+
+	if (clicking) {
+		SDL_GetMouseState(&this->mousePoint.x, &this->mousePoint.y);
+		for (int i = 0; i < this->gridSize.x; i++) {
+			for (int j = 0; j < this->gridSize.y; j++) {
+				SDL_Rect rect = {
+						i * (this->cellSize + 1),
+						j * (this->cellSize + 1),
+						this->cellSize,
+						this->cellSize
+				};
+				if (SDL_PointInRect(&this->mousePoint, &rect) && (i != this->prevClickedX || j != this->prevClickedY)) {
+					this->cGrid[i][j] = !this->cGrid[i][j];
+					this->prevClickedX = i;
+					this->prevClickedY = j;
+				}
+			}
 		}
 	}
 }
@@ -36,6 +84,7 @@ void Game::loop() {
 	while (this->running) {
 		this->handleEvents();
 		this->renderGrid();
+		this->renderCells();
 		SDL_RenderPresent(this->renderer);
 	}
 }
@@ -46,7 +95,8 @@ Game::Game(int width, int height, int cellSize, int speed, int fps) {
 	this->cellSize = cellSize;
 	this->speed = speed;
 	this->fps = fps;
-	cGrid.resize(height, std::vector<bool>(width, false));
+	this->cGrid.resize(width);
+	for (int i = 0; i < width; i++) this->cGrid[i].resize(height, false);
 
 	this->windowSize.x = width * (cellSize + 1) - 1;
 	this->windowSize.y = height * (cellSize + 1) - 1;
@@ -80,6 +130,8 @@ Game::Game(int width, int height, int cellSize, int speed, int fps) {
 		return;
 	}
 
+	this->renderGrid();
+	SDL_RenderPresent(this->renderer);
 	SDL_ShowSimpleMessageBox(
 		NULL,
 		"Game started",
@@ -88,6 +140,8 @@ Game::Game(int width, int height, int cellSize, int speed, int fps) {
 
 	this->running = true;
 	this->paused = true;
+
+	//this->cGrid[2][6] = true;
 
 	this->loop();
 
